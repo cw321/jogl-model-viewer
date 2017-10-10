@@ -5,6 +5,9 @@ import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.glu.GLU;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.FloatBuffer;
 
 import static com.jogamp.opengl.GL.*;  // GL constants
 import static com.jogamp.opengl.GL2.*; // GL2 constants
@@ -84,10 +87,59 @@ public class JOGL2Setup_GLCanvas extends GLCanvas implements GLEventListener {
 
     public void render3D(GLAutoDrawable drawable) throws IOException, InterruptedException{
         GL2 bunny = drawable.getGL().getGL2();  // get the OpenGL 2 graphics context
+        float[] light_pos = {1.0f, 1.0f, 1.0f, 1.0f};
+        ByteBuffer lbb = ByteBuffer.allocateDirect(16);
+        lbb.order(ByteOrder.nativeOrder());
+        FloatBuffer fb = lbb.asFloatBuffer();
+        fb.put(light_pos);
+        fb.position(0);
         bunny.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear color and depth buffers
         bunny.glLoadIdentity();  // reset the model-view matrix
 
-        bunny.glTranslatef(0.0f,0.0f,-1.0f);
+        bunny.glTranslatef(0.0f,0.0f,-0.5f);
+
+        bunny.glEnable(GL_LIGHT0);
+        bunny.glLightfv(GL_LIGHT0, GL_POSITION, fb);
+
+
+        float[] ambient = {1.0f, 0f, 0f, 1.0f};
+        lbb = ByteBuffer.allocateDirect(16);
+        lbb.order(ByteOrder.nativeOrder());
+        fb = lbb.asFloatBuffer();
+        fb.put(ambient);
+        fb.position(0);
+
+        bunny.glLightfv(GL_LIGHT0, GL_AMBIENT, fb);
+
+
+        float[] diffuse = {1.0f, 0f, 0f, 1.0f};
+        lbb = ByteBuffer.allocateDirect(16);
+        lbb.order(ByteOrder.nativeOrder());
+        fb = lbb.asFloatBuffer();
+        fb.put(diffuse);
+        fb.position(0);
+
+        bunny.glLightfv(GL_LIGHT0, GL_AMBIENT, fb);
+
+
+        float[] specular = {1.0f, 0f, 0f, 1.0f};
+        lbb = ByteBuffer.allocateDirect(16);
+        lbb.order(ByteOrder.nativeOrder());
+        fb = lbb.asFloatBuffer();
+        fb.put(specular);
+        fb.position(0);
+
+        bunny.glLightfv(GL_LIGHT0, GL_AMBIENT, fb);
+
+
+        float[] light_mode = {0.2f, 0.2f, 0.2f, 1.0f};
+        lbb = ByteBuffer.allocateDirect(16);
+        lbb.order(ByteOrder.nativeOrder());
+        fb = lbb.asFloatBuffer();
+        fb.put(light_mode);
+        fb.position(0);
+        bunny.glEnable(GL_LIGHTING);
+        bunny.glLightModelfv(GL_LIGHT_MODEL_AMBIENT, fb);
 
         Reader values = new Reader("resources/bun_zipper.ply");
 
