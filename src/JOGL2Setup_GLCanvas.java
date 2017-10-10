@@ -94,12 +94,23 @@ public class JOGL2Setup_GLCanvas extends GLCanvas implements GLEventListener {
         bunny.glBegin(GL_TRIANGLES);
 
         for (int i = 0; i < values.face_list.length; i++) {
+            bunny.glNormal3f(values.face_list[i].vertex_list[0].normal.x,
+                    values.face_list[i].vertex_list[0].normal.y,
+                    values.face_list[i].vertex_list[0].normal.z);
             bunny.glVertex3f(values.face_list[i].vertex_list[0].x,
                     values.face_list[i].vertex_list[0].y,
                     values.face_list[i].vertex_list[0].z);
+
+            bunny.glNormal3f(values.face_list[i].vertex_list[1].normal.x,
+                    values.face_list[i].vertex_list[1].normal.y,
+                    values.face_list[i].vertex_list[1].normal.z);
             bunny.glVertex3f(values.face_list[i].vertex_list[1].x,
                     values.face_list[i].vertex_list[1].y,
                     values.face_list[i].vertex_list[1].z);
+
+            bunny.glNormal3f(values.face_list[i].vertex_list[2].normal.x,
+                    values.face_list[i].vertex_list[2].normal.y,
+                    values.face_list[i].vertex_list[2].normal.z);
             bunny.glVertex3f(values.face_list[i].vertex_list[2].x,
                     values.face_list[i].vertex_list[2].y,
                     values.face_list[i].vertex_list[2].z);

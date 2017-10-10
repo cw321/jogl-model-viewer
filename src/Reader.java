@@ -48,5 +48,8 @@ public class Reader {
                 flag = true;
             }
         }
+        for (int i = 0; i < vertex_list.length; i++) {
+            vertex_list[i].normal = vertex_list[i].calcNormal();
+        }
     }
 }
