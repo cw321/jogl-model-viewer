@@ -5,8 +5,8 @@ import java.io.IOException;
 public class Reader {
 
     public String file;
-    public Vertex[] vertex_list;
-    public Face[] face_list;
+    public Vertex[] vertex_list = new Vertex[35947];
+    public Face[] face_list = new Face[69451];
 
     public Reader(String filename) throws IOException{
         file = filename;
@@ -17,7 +17,7 @@ public class Reader {
         int vertex_counter = 0;
         int face_counter = 0;
 
-        int[] int_list = null;
+        Vertex[] vert_list = new Vertex[3];
 
         // loop over lines and read
         BufferedReader read = new BufferedReader(new FileReader(file));
@@ -31,14 +31,19 @@ public class Reader {
                             Float.parseFloat(splits[2]),
                             Float.parseFloat(splits[3]),
                             Float.parseFloat(splits[4]));
+                    vertex_counter++;
                 } else if (splits.length == 4) {
                     // else we make a face from it
-                    int_list[0] = Integer.parseInt(splits[1]);
-                    int_list[1] = Integer.parseInt(splits[2]);
-                    int_list[2] = Integer.parseInt(splits[3]);
-                    face_list[face_counter] = new Face(Integer.parseInt(splits[0]), int_list, vertex_list);
+                    vert_list[0] = vertex_list[Integer.parseInt(splits[1])];
+                    vert_list[1] = vertex_list[Integer.parseInt(splits[2])];
+                    vert_list[2] = vertex_list[Integer.parseInt(splits[3])];
+                    face_list[face_counter] = new Face(Integer.parseInt(splits[0]), vert_list, this);
+                    vert_list[0].adj_face.add(face_list[face_counter]);
+                    vert_list[1].adj_face.add(face_list[face_counter]);
+                    vert_list[2].adj_face.add(face_list[face_counter]);
+                    face_counter++;
                 }
-            } else if (line == "end_header") {
+            } else if (line.contains("end_header")){
                 // this finds end of header
                 flag = true;
             }

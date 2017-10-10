@@ -4,35 +4,31 @@ public class Face {
     private static int counter = 0;
 
     public int id, vertices;
-    public int[] id_list;
-    public Vertex[] vertex_list, global_list;
+    public Vertex[] vertex_list;
+    public Vertex normal;
 
-    public Face(int v0, int[] id_list0, Vertex[] glob0) {
+    public Face(int v0, Vertex[] v_list0, Reader r0) {
         // count number of faces
         id = counter;
         counter++;
 
         // save vals from construction
         vertices = v0;
-        id_list = id_list0;
+        vertex_list = new Vertex[vertices];
 
-        // save reference to global vertex list
-        global_list = glob0;
+        // deep copy values
         for (int i = 0; i < vertices; i++) {
-            vertex_list[i] = this.findVertexById(id_list[i]);
+            vertex_list[i] = v_list0[i];
         }
     }
 
-    public Vertex findVertexById(int find) {
-        Vertex out;
+    public Vertex calcNormal() {
+        Vertex v1 = vertex_list[0];
+        Vertex v2 = vertex_list[1];
+        Vertex v3 = vertex_list[2];
 
-        for (int i = 0; i < this.global_list.length; i++) {
-            if (this.global_list[i].id == find) {
-                out = this.global_list[i];
-                return out;
-            }
-        }
 
-        return null;
+
+        return out;
     }
 }

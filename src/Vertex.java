@@ -1,3 +1,6 @@
+import java.util.ArrayList;
+import java.util.List;
+
 public class Vertex {
 
     // init class vars
@@ -5,6 +8,7 @@ public class Vertex {
 
     public float x, y, z, confidence, intensity;
     public int id;
+    public List<Face> adj_face = new ArrayList<>();
 
     public Vertex(float x0, float y0, float z0, float conf0, float int0) {
         // count number of vertices
@@ -17,5 +21,11 @@ public class Vertex {
         z = z0;
         confidence = conf0;
         intensity = int0;
+    }
+
+    public Vertex calcNormal() {
+
+
+        return out;
     }
 }
