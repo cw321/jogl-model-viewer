@@ -4,6 +4,7 @@ import com.jogamp.opengl.GLEventListener;
 import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.glu.GLU;
 
+import java.awt.event.*;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -25,6 +26,11 @@ public class JOGL2Setup_GLCanvas extends GLCanvas implements GLEventListener {
     public JOGL2Setup_GLCanvas() {
         this.addGLEventListener(this);
     }
+    private Reader values;
+    private float rt_x = 0; private float tr_x = 0;
+    private float rt_y = 0; private float tr_y = -0.1f;
+    private float rt_z = 0; private float tr_z = -0.5f;
+    GL2 gl;
 
     // ------ Implement methods declared in GLEventListener ------
 
@@ -34,7 +40,79 @@ public class JOGL2Setup_GLCanvas extends GLCanvas implements GLEventListener {
      */
     @Override
     public void init(GLAutoDrawable drawable) {
-        GL2 gl = drawable.getGL().getGL2();      // get the OpenGL graphics context
+
+        addMouseMotionListener(new MouseMotionListener() {
+
+            private int old_x = 0;
+            private int old_y = 0;
+
+
+            @Override
+            public void mouseDragged(MouseEvent e) {
+                int x = e.getX();
+                int y = e.getY();
+
+                rt_y -= (old_x - x) / 2;
+                rt_x -= (old_y - y) / 2;
+
+                old_x = x;
+                old_y = y;
+            }
+
+            @Override
+            public void mouseMoved(MouseEvent e) {
+                int x = e.getX();
+                int y = e.getY();
+
+                old_x = x;
+                old_y = y;
+            }
+        });
+
+        try {
+            values = new Reader("resources/bun_zipper.ply");;
+        } catch(IOException ie) {
+            ie.printStackTrace();
+        }
+
+        this.addKeyListener(new KeyListener() {
+
+            @Override
+            public void keyTyped(KeyEvent e) {
+
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                int key = e.getKeyCode();
+
+                if (key == KeyEvent.VK_W) {
+                    rt_x += 1f;
+                } else if (key == KeyEvent.VK_X) {
+                    rt_x -= 1f;
+                } else if (key == KeyEvent.VK_D) {
+                    rt_y += 1f;
+                } else if (key == KeyEvent.VK_A) {
+                    rt_y -= 1f;
+                } else if (key == KeyEvent.VK_E) {
+                    rt_z += 1f;
+                } else if (key == KeyEvent.VK_Z) {
+                    rt_z -= 1f;
+                } else if (key == KeyEvent.VK_P) {
+                    tr_z += 0.01f;
+                } else if (key == KeyEvent.VK_O) {
+                    tr_z -= 0.01f;
+                }
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+
+            }
+
+        });
+
+        gl = drawable.getGL().getGL2();      // get the OpenGL graphics context
         glu = new GLU();                         // get GL Utilities
         gl.glClearColor(0.0f, 0.0f, 0.0f, 0.0f); // set background (clear) color
         gl.glClearDepth(1.0f);      // set clear depth value to farthest
@@ -52,7 +130,7 @@ public class JOGL2Setup_GLCanvas extends GLCanvas implements GLEventListener {
      */
     @Override
     public void reshape(GLAutoDrawable drawable, int x, int y, int width, int height) {
-        GL2 gl = drawable.getGL().getGL2();  // get the OpenGL 2 graphics context
+        gl = drawable.getGL().getGL2();  // get the OpenGL 2 graphics context
         System.out.println(width);
         System.out.println(height);
         if (height == 0) height = 1;   // prevent divide by zero
@@ -75,61 +153,55 @@ public class JOGL2Setup_GLCanvas extends GLCanvas implements GLEventListener {
      * Called back by the animator to perform rendering.
      */
     @Override
-    public void display(GLAutoDrawable drawable){
-        try {
-            render3D(drawable);
-        } catch(IOException ie) {
-            ie.printStackTrace();
-        } catch(InterruptedException inter) {
-            inter.printStackTrace();
-        }
+    public void display(GLAutoDrawable drawable) {
+        render3D(drawable);
     }
 
-    public void render3D(GLAutoDrawable drawable) throws IOException, InterruptedException{
-        GL2 bunny = drawable.getGL().getGL2();  // get the OpenGL 2 graphics context
+    public void render3D(GLAutoDrawable drawable) {
+        gl = drawable.getGL().getGL2();  // get the OpenGL 2 graphics context
         float[] light_pos = {1.0f, 1.0f, 1.0f, 1.0f};
         ByteBuffer lbb = ByteBuffer.allocateDirect(16);
         lbb.order(ByteOrder.nativeOrder());
         FloatBuffer fb = lbb.asFloatBuffer();
         fb.put(light_pos);
         fb.position(0);
-        bunny.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear color and depth buffers
-        bunny.glLoadIdentity();  // reset the model-view matrix
+        gl.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear color and depth buffers
+        gl.glLoadIdentity();  // reset the model-view matrix
 
-        bunny.glTranslatef(0.0f,0.0f,-0.5f);
+        gl.glTranslatef(tr_x, tr_y, tr_z);
 
-        bunny.glEnable(GL_LIGHT0);
-        bunny.glLightfv(GL_LIGHT0, GL_POSITION, fb);
+        gl.glEnable(GL_LIGHT0);
+        gl.glLightfv(GL_LIGHT0, GL_POSITION, fb);
 
 
-        float[] ambient = {1.0f, 0f, 0f, 1.0f};
+        float[] ambient = {1.0f, 1.0f, 1.0f, 1.0f};
         lbb = ByteBuffer.allocateDirect(16);
         lbb.order(ByteOrder.nativeOrder());
         fb = lbb.asFloatBuffer();
         fb.put(ambient);
         fb.position(0);
 
-        bunny.glLightfv(GL_LIGHT0, GL_AMBIENT, fb);
+        gl.glLightfv(GL_LIGHT0, GL_AMBIENT, fb);
 
 
-        float[] diffuse = {1.0f, 0f, 0f, 1.0f};
+        float[] diffuse = {1.0f, 1.0f, 1.0f, 1.0f};
         lbb = ByteBuffer.allocateDirect(16);
         lbb.order(ByteOrder.nativeOrder());
         fb = lbb.asFloatBuffer();
         fb.put(diffuse);
         fb.position(0);
 
-        bunny.glLightfv(GL_LIGHT0, GL_AMBIENT, fb);
+        gl.glLightfv(GL_LIGHT0, GL_AMBIENT, fb);
 
 
-        float[] specular = {1.0f, 0f, 0f, 1.0f};
+        float[] specular = {1.0f, 1.0f, 1.0f, 1.0f};
         lbb = ByteBuffer.allocateDirect(16);
         lbb.order(ByteOrder.nativeOrder());
         fb = lbb.asFloatBuffer();
         fb.put(specular);
         fb.position(0);
 
-        bunny.glLightfv(GL_LIGHT0, GL_AMBIENT, fb);
+        gl.glLightfv(GL_LIGHT0, GL_AMBIENT, fb);
 
 
         float[] light_mode = {0.2f, 0.2f, 0.2f, 1.0f};
@@ -138,38 +210,40 @@ public class JOGL2Setup_GLCanvas extends GLCanvas implements GLEventListener {
         fb = lbb.asFloatBuffer();
         fb.put(light_mode);
         fb.position(0);
-        bunny.glEnable(GL_LIGHTING);
-        bunny.glLightModelfv(GL_LIGHT_MODEL_AMBIENT, fb);
+        gl.glEnable(GL_LIGHTING);
+        gl.glLightModelfv(GL_LIGHT_MODEL_AMBIENT, fb);
 
-        Reader values = new Reader("resources/bun_zipper.ply");
+        gl.glRotatef(rt_x, 1, 0, 0);
+        gl.glRotatef(rt_y, 0, 1, 0);
+        gl.glRotatef(rt_z, 0, 0, 1);
 
-        bunny.glBegin(GL_TRIANGLES);
+        gl.glBegin(GL_TRIANGLES);
 
         for (int i = 0; i < values.face_list.length; i++) {
-            bunny.glNormal3f(values.face_list[i].vertex_list[0].normal.x,
+            gl.glNormal3f(values.face_list[i].vertex_list[0].normal.x,
                     values.face_list[i].vertex_list[0].normal.y,
                     values.face_list[i].vertex_list[0].normal.z);
-            bunny.glVertex3f(values.face_list[i].vertex_list[0].x,
+            gl.glVertex3f(values.face_list[i].vertex_list[0].x,
                     values.face_list[i].vertex_list[0].y,
                     values.face_list[i].vertex_list[0].z);
 
-            bunny.glNormal3f(values.face_list[i].vertex_list[1].normal.x,
+            gl.glNormal3f(values.face_list[i].vertex_list[1].normal.x,
                     values.face_list[i].vertex_list[1].normal.y,
                     values.face_list[i].vertex_list[1].normal.z);
-            bunny.glVertex3f(values.face_list[i].vertex_list[1].x,
+            gl.glVertex3f(values.face_list[i].vertex_list[1].x,
                     values.face_list[i].vertex_list[1].y,
                     values.face_list[i].vertex_list[1].z);
 
-            bunny.glNormal3f(values.face_list[i].vertex_list[2].normal.x,
+            gl.glNormal3f(values.face_list[i].vertex_list[2].normal.x,
                     values.face_list[i].vertex_list[2].normal.y,
                     values.face_list[i].vertex_list[2].normal.z);
-            bunny.glVertex3f(values.face_list[i].vertex_list[2].x,
+            gl.glVertex3f(values.face_list[i].vertex_list[2].x,
                     values.face_list[i].vertex_list[2].y,
                     values.face_list[i].vertex_list[2].z);
         }
 
-        bunny.glEnd();
-        bunny.glLoadIdentity();
+        gl.glEnd();
+        gl.glLoadIdentity();
 
     }
 

@@ -1,6 +1,8 @@
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+
+import com.jogamp.opengl.GLEventListener;
 import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.util.FPSAnimator;
 
@@ -17,11 +19,12 @@ public class JOGL2Setup_RendererMain extends JFrame {
     private static final int CANVAS_WIDTH = 640;  // width of the drawable
     private static final int CANVAS_HEIGHT = 480; // height of the drawable
     private static final int FPS = 60; // animator's target frames per second
+    GLCanvas canvas;
 
     /** Constructor to setup the top-level container and animator */
     public JOGL2Setup_RendererMain() {
         // Create the OpenGL rendering canvas
-        GLCanvas canvas = new JOGL2Setup_GLCanvas();
+        canvas = new JOGL2Setup_GLCanvas();
         canvas.setPreferredSize(new Dimension(CANVAS_WIDTH, CANVAS_HEIGHT));
 
         // Create a animator that drives canvas' display() at the specified FPS.
