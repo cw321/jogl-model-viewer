@@ -4,6 +4,7 @@ import com.jogamp.opengl.GLEventListener;
 import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.glu.GLU;
 
+import javax.swing.*;
 import java.awt.event.*;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -30,6 +31,9 @@ public class JOGL2Setup_GLCanvas extends GLCanvas implements GLEventListener {
     private float rt_x = 0; private float tr_x = 0;
     private float rt_y = 0; private float tr_y = -0.1f;
     private float rt_z = 0; private float tr_z = -0.5f;
+    private int render_mode = GL_FILL;
+    private float material = 0;
+    private boolean lights_on = true;
     GL2 gl;
 
     // ------ Implement methods declared in GLEventListener ------
@@ -49,14 +53,25 @@ public class JOGL2Setup_GLCanvas extends GLCanvas implements GLEventListener {
 
             @Override
             public void mouseDragged(MouseEvent e) {
-                int x = e.getX();
-                int y = e.getY();
+                if (SwingUtilities.isLeftMouseButton(e)) {
+                    int x = e.getX();
+                    int y = e.getY();
 
-                rt_y -= (old_x - x) / 2;
-                rt_x -= (old_y - y) / 2;
+                    rt_y -= (old_x - x) / 2;
+                    rt_x -= (old_y - y) / 2;
 
-                old_x = x;
-                old_y = y;
+                    old_x = x;
+                    old_y = y;
+                } else if (SwingUtilities.isRightMouseButton(e)) {
+                    int x = e.getX();
+                    int y = e.getY();
+
+                    tr_x -= ((float)old_x - (float)x) / 1000;
+                    tr_y += ((float)old_y - (float)y) / 1000;
+
+                    old_x = x;
+                    old_y = y;
+                }
             }
 
             @Override
@@ -66,6 +81,17 @@ public class JOGL2Setup_GLCanvas extends GLCanvas implements GLEventListener {
 
                 old_x = x;
                 old_y = y;
+            }
+        });
+
+        addMouseWheelListener(new MouseWheelListener() {
+            @Override
+            public void mouseWheelMoved(MouseWheelEvent e) {
+                if (e.getWheelRotation() < 0) {
+                    tr_z += 0.01f;
+                } else {
+                    tr_z -= 0.01f;
+                }
             }
         });
 
@@ -102,6 +128,20 @@ public class JOGL2Setup_GLCanvas extends GLCanvas implements GLEventListener {
                     tr_z += 0.01f;
                 } else if (key == KeyEvent.VK_O) {
                     tr_z -= 0.01f;
+                } else if (key == KeyEvent.VK_K) {
+                    if (render_mode == GL_FILL) {
+                        render_mode = GL_LINE;
+                    } else {
+                        render_mode = GL_FILL;
+                    }
+                } else if (key == KeyEvent.VK_L) {
+                    if (lights_on) {
+                        lights_on = false;
+                    } else {
+                        lights_on = true;
+                    }
+                } else if (key == KeyEvent.VK_M) {
+                    material += 1;
                 }
             }
 
@@ -121,7 +161,6 @@ public class JOGL2Setup_GLCanvas extends GLCanvas implements GLEventListener {
         gl.glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST); // best perspective correction
         gl.glShadeModel(GL_SMOOTH); // blends colors nicely, and smoothes out lighting
 
-        // ----- Your OpenGL initialization code here -----
     }
 
     /**
@@ -169,42 +208,108 @@ public class JOGL2Setup_GLCanvas extends GLCanvas implements GLEventListener {
         gl.glLoadIdentity();  // reset the model-view matrix
 
         gl.glTranslatef(tr_x, tr_y, tr_z);
+        gl.glPolygonMode(GL_FRONT_AND_BACK, render_mode);
 
-        gl.glEnable(GL_LIGHT0);
-        gl.glLightfv(GL_LIGHT0, GL_POSITION, fb);
+        if (lights_on) {
+            gl.glEnable(GL_LIGHT0);
+            gl.glLightfv(GL_LIGHT0, GL_POSITION, fb);
+        } else {
+            gl.glDisable(GL_LIGHT0);
+        }
 
+        if (material%3 == 0) {
 
-        float[] ambient = {1.0f, 1.0f, 1.0f, 1.0f};
-        lbb = ByteBuffer.allocateDirect(16);
-        lbb.order(ByteOrder.nativeOrder());
-        fb = lbb.asFloatBuffer();
-        fb.put(ambient);
-        fb.position(0);
+            float[] ambient = {0.96f, 0.96f, 0.96f, 1.0f};
+            float[] diffuse = {0.96f, 0.96f, 0.96f, 1.0f};
+            float[] specular = {0.96f, 0.96f, 0.96f, 1.0f};
 
-        gl.glLightfv(GL_LIGHT0, GL_AMBIENT, fb);
+            lbb = ByteBuffer.allocateDirect(16);
+            lbb.order(ByteOrder.nativeOrder());
+            fb = lbb.asFloatBuffer();
+            fb.put(ambient);
+            fb.position(0);
 
+            gl.glLightfv(GL_LIGHT0, GL_AMBIENT, fb);
 
-        float[] diffuse = {1.0f, 1.0f, 1.0f, 1.0f};
-        lbb = ByteBuffer.allocateDirect(16);
-        lbb.order(ByteOrder.nativeOrder());
-        fb = lbb.asFloatBuffer();
-        fb.put(diffuse);
-        fb.position(0);
+            lbb = ByteBuffer.allocateDirect(16);
+            lbb.order(ByteOrder.nativeOrder());
+            fb = lbb.asFloatBuffer();
+            fb.put(diffuse);
+            fb.position(0);
 
-        gl.glLightfv(GL_LIGHT0, GL_AMBIENT, fb);
+            gl.glLightfv(GL_LIGHT0, GL_DIFFUSE, fb);
 
+            lbb = ByteBuffer.allocateDirect(16);
+            lbb.order(ByteOrder.nativeOrder());
+            fb = lbb.asFloatBuffer();
+            fb.put(specular);
+            fb.position(0);
 
-        float[] specular = {1.0f, 1.0f, 1.0f, 1.0f};
-        lbb = ByteBuffer.allocateDirect(16);
-        lbb.order(ByteOrder.nativeOrder());
-        fb = lbb.asFloatBuffer();
-        fb.put(specular);
-        fb.position(0);
+            gl.glLightfv(GL_LIGHT0, GL_SPECULAR, fb);
 
-        gl.glLightfv(GL_LIGHT0, GL_AMBIENT, fb);
+        } else if (material%3 == 1) {
 
+            float[] ambient = {1.0f, 0.843f, 0, 1.0f};
+            float[] diffuse = {1.0f, 0.843f, 0, 1.0f};
+            float[] specular = {1.0f, 0.843f, 0, 1.0f};
 
-        float[] light_mode = {0.2f, 0.2f, 0.2f, 1.0f};
+            lbb = ByteBuffer.allocateDirect(16);
+            lbb.order(ByteOrder.nativeOrder());
+            fb = lbb.asFloatBuffer();
+            fb.put(ambient);
+            fb.position(0);
+
+            gl.glLightfv(GL_LIGHT0, GL_AMBIENT, fb);
+
+            lbb = ByteBuffer.allocateDirect(16);
+            lbb.order(ByteOrder.nativeOrder());
+            fb = lbb.asFloatBuffer();
+            fb.put(diffuse);
+            fb.position(0);
+
+            gl.glLightfv(GL_LIGHT0, GL_DIFFUSE, fb);
+
+            lbb = ByteBuffer.allocateDirect(16);
+            lbb.order(ByteOrder.nativeOrder());
+            fb = lbb.asFloatBuffer();
+            fb.put(specular);
+            fb.position(0);
+
+            gl.glLightfv(GL_LIGHT0, GL_SPECULAR, fb);
+
+        } else if (material%3 == 2) {
+
+            float[] ambient = {0.804f, 0.5216f, 0.247f, 1.0f};
+            float[] diffuse = {0.804f, 0.5216f, 0.247f, 1.0f};
+            float[] specular = {0.804f, 0.5216f, 0.247f, 1.0f};
+
+            lbb = ByteBuffer.allocateDirect(16);
+            lbb.order(ByteOrder.nativeOrder());
+            fb = lbb.asFloatBuffer();
+            fb.put(ambient);
+            fb.position(0);
+
+            gl.glLightfv(GL_LIGHT0, GL_AMBIENT, fb);
+
+            lbb = ByteBuffer.allocateDirect(16);
+            lbb.order(ByteOrder.nativeOrder());
+            fb = lbb.asFloatBuffer();
+            fb.put(diffuse);
+            fb.position(0);
+
+            gl.glLightfv(GL_LIGHT0, GL_DIFFUSE, fb);
+
+            lbb = ByteBuffer.allocateDirect(16);
+            lbb.order(ByteOrder.nativeOrder());
+            fb = lbb.asFloatBuffer();
+            fb.put(specular);
+            fb.position(0);
+
+            gl.glLightfv(GL_LIGHT0, GL_SPECULAR, fb);
+
+        }
+
+        float[] light_mode = {0.3f, 0.3f, 0.3f, 1.0f};
         lbb = ByteBuffer.allocateDirect(16);
         lbb.order(ByteOrder.nativeOrder());
         fb = lbb.asFloatBuffer();
