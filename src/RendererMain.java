@@ -8,22 +8,49 @@ import com.jogamp.opengl.util.FPSAnimator;
 /**
  * Based on :http://www3.ntu.edu.sg/home/ehchua/programming/opengl/JOGL2.0.html with minor modifications
  * JOGL 2.0 Program Template (GLCanvas)
- * This is the top-level "Container", which allocates and add GLCanvas ("Component")
- * and animator.
+ * This is the top-level "Container", which allocates and add GLCanvas ("Component") and animator.
+ *
+ * @author Curtis White
+ * @version 1.0
+ * @since 1.0
  */
 @SuppressWarnings("serial")
-public class JOGL2Setup_RendererMain extends JFrame {
-    // Define constants for the top-level container
-    private static String TITLE = "JOGL 2.0 Template";  // window's title
-    private static final int CANVAS_WIDTH = 640;  // width of the drawable
-    private static final int CANVAS_HEIGHT = 480; // height of the drawable
-    private static final int FPS = 60; // animator's target frames per second
+public class RendererMain extends JFrame {
+
+    /**
+     * Window title.
+     */
+    private static String TITLE = "Bunny Renderer";
+
+    /**
+     * Default width of the rendered window.
+     */
+    private static final int CANVAS_WIDTH = 800;
+
+    /**
+     * Default height of the rendered window.
+     */
+    private static final int CANVAS_HEIGHT = 600;
+
+    /**
+     * Target FPS for the animator.
+     */
+    private static final int FPS = 60;
+
+    /**
+     * Canvas for OpenGL to draw on.
+     */
     GLCanvas canvas;
 
-    /** Constructor to setup the top-level container and animator */
-    public JOGL2Setup_RendererMain() {
-        // Create the OpenGL rendering canvas
-        canvas = new JOGL2Setup_GLCanvas();
+    /**
+     * Constructor for the class.
+     *
+     * @author Curtis White
+     * @since 1.0
+     */
+    public RendererMain() {
+        // Create the OpenGL rendering canvas and configure it
+        canvas = new Canvas();
         canvas.setPreferredSize(new Dimension(CANVAS_WIDTH, CANVAS_HEIGHT));
 
         // Create a animator that drives canvas' display() at the specified FPS.
@@ -48,18 +75,25 @@ public class JOGL2Setup_RendererMain extends JFrame {
 
         this.setTitle(TITLE);
         this.pack();
-
         this.setVisible(true);
-        animator.start(); // start the animation loop
+
+        // Start animation loop
+        animator.start();
     }
 
-    /** The entry main() method */
+    /**
+     * main() since this is the main class of the project.
+     *
+     * @author Curtis White
+     * @since 1.0
+     */
     public static void main(String[] args) {
         // Run the GUI codes in the event-dispatching thread for thread safety
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                new JOGL2Setup_RendererMain();  // run the constructor
+                // Run the constructor
+                new RendererMain();
             }
         });
     }
