@@ -7,7 +7,7 @@ public class Face {
     public Vertex[] vertex_list;
     public NormalVector normal;
 
-    public Face(int v0, Vertex[] v_list0, Reader r0) {
+    public Face(int v0, Vertex[] v_list0) {
         // count number of faces
         id = counter;
         counter++;
