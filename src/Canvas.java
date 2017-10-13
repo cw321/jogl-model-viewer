@@ -85,6 +85,11 @@ public class Canvas extends GLCanvas implements GLEventListener {
     private float material = 0;
 
     /**
+     * Stores the draw mode being used
+     */
+    private int draw_mode = 0;
+
+    /**
      * Flag whether the lights are on or off
      */
     private boolean lights_on = true;
@@ -293,6 +298,9 @@ public class Canvas extends GLCanvas implements GLEventListener {
                 } else if (key == KeyEvent.VK_M) {
                     // Cycles through the materials
                     material += 1;
+                } else if (key == KeyEvent.VK_J) {
+                    // Toggle perspective type
+                    draw_mode += 1;
                 }
             }
 
@@ -359,10 +367,7 @@ public class Canvas extends GLCanvas implements GLEventListener {
         // Setup perspective projection, with aspect ratio matches viewport
         gl.glMatrixMode(GL_PROJECTION);
         gl.glLoadIdentity();
-
-        // Set draw mode (perspective or orthogonal)
         glu.gluPerspective(45.0, aspect, 0.1, 100.0);
-        //glu.gluOrtho2D(0.0f,width,height,0.0f);
 
         // Enable the model-view transform
         gl.glMatrixMode(GL_MODELVIEW);
