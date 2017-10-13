@@ -3,6 +3,11 @@ Developed and maintained by Curtis White
 
 Produced for Unit FIT3088 at Monash University, Faculty of IT
 
+## Installation
+The file bunny_renderer.zip can be extracted. It contains an
+executable jar and a resources folder. The file in the folder
+can be modified in order to view your own model!
+
 ## Running
 Running the program will render the stanford bunny in an OpenGL
 environment. You can navigate and view the environment using the
